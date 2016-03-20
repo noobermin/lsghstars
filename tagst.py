@@ -13,6 +13,7 @@ Options:
      --regex -r          Tag all full_names that match regex.
      --verbose -v        Make some noise.
      --last -1           Only add to the last.
+     --undo -u           Untag something.
 '''
 import json;
 from misc import readtxt,take;
@@ -37,11 +38,13 @@ if __name__ == "__main__":
         with open('tags.pi','rb') as f:
             d = pickle.load(f);
     else:
-        d={};
+        d={}
     for i in matches:
-        if i not in d: d[i]=[];
+        if i not in d: d[i]=set()
         for tag in opts['<tag>']:
-            if tag not in d[i]:
-                d[i].append(tag);
+            if not opts['--undo']:
+                d[i].add(tag);
+            else:
+                d[i].remove(tag);
     with open('tags.pi',"wb") as f:
         pickle.dump(d,f);
