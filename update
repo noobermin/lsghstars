@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+if [ -z "$PER_PAGE" ]; then PER_PAGE=100;fi;
+if [ -z "$STDIR" ]; then STDIR=.; fi;
+if [ ! -e username ] || [ "$(cat username | wc -l)" -le 0 ]; then
+    echo "enter your username:"
+    if ! read USERNAME; then echo okay...; exit -1; fi;
+    echo $USERNAME>$STDIR/username
+fi
+#first
+curl -D .header.tmp "https://api.github.com/users/$(cat username)/starred?per_page=$PER_PAGE">.stars-first.json
+PAGES=$(
+    cat .header.tmp  |\
+        grep Link: |\
+        sed 's/^.*,*\( *<.*>; *rel=\"last\"\),\{0,1\}.*$/\1/' |\
+        sed 's/^.*&page=\([0-9]*\).*$/\1/'
+     );
+if [ $PAGES -eq 1 ]; then
+    mv .stars-first.json stars.json
+    exit 0;
+fi;
+rm .header.tmp
+
+#mac os x is inferior
+LEN=$(expr $(echo $PAGES | wc -c ) - 1 );
+num(){
+    printf %0${LEN}d $1
+}
+#making the first cat-able
+cat .stars-first.json | sed '$s/]/,/'>.stars-$(num 1).json
+rm .stars-first.json
+#middle ones
+for ((i=2; i < $PAGES; i++ )); do
+    curl "https://api.github.com/users/$(cat username)/starred?per_page=$PER_PAGE&page=$i">.stars.tmp
+    #intermediate needed because curl doesn't play
+    #well with pipes.
+    cat .stars.tmp | sed '1s/\[//' | sed '$s/\]/,/' >.stars-$(num $i).json
+done
+curl "https://api.github.com/users/$(cat username)/starred?per_page=$PER_PAGE&page=$PAGES">.stars.tmp
+cat .stars.tmp | sed '1s/\[//' >.stars-$PAGES.json
+cat .stars*.json > stars.json;
+rm .stars*
