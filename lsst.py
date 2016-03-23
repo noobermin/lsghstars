@@ -14,6 +14,7 @@ Options:
     --fields=L -x L    Print these fields. Should be a
                        comma separated list. For a listing
                        of fields, see the json file.
+    --stars=STARS      Path of stars file [default: stars.json]
 '''
 import json;
 import pickle;
@@ -21,7 +22,7 @@ from misc import readtxt,take
 if __name__ == "__main__":
     from docopt import docopt;
     opts = docopt(__doc__,help=True);
-    stars = json.loads(readtxt("stars.json"));
+    stars = json.loads(readtxt(opts['--stars']));
     keys = opts['--fields'].split(',') if opts['--fields'] else []
     
     readtags = opts['--tags'] or opts['rx'] or opts['filter'];

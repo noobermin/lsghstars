@@ -14,6 +14,7 @@ Options:
      --verbose -v        Make some noise.
      --last -1           Only add to the last.
      --undo -u           Untag something.
+     --tags-out=OUT      Output stars file [default: tags.pi]
 '''
 import json;
 from misc import readtxt,take;
@@ -31,11 +32,12 @@ if __name__ == "__main__":
     else:
         matches = [ star['id'] for star in stars
                     if opts['<search>'] in star['full_name'] ];
+    tagname = opts['--tags-out'];
     # The tag file is super complicated
     # omg, u have no idea
     # this is probably very inefficient though...
-    if os.path.isfile('tags.pi'):
-        with open('tags.pi','rb') as f:
+    if os.path.isfile(tagname):
+        with open(tagname,'rb') as f:
             d = pickle.load(f);
     else:
         d={}
@@ -46,5 +48,5 @@ if __name__ == "__main__":
                 d[i].add(tag);
             else:
                 d[i].remove(tag);
-    with open('tags.pi',"wb") as f:
+    with open(tagname,"wb") as f:
         pickle.dump(d,f);
