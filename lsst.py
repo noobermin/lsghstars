@@ -14,12 +14,16 @@ Options:
     --fields=L -x L    Print these fields. Should be a
                        comma separated list. For a listing
                        of fields, see the json file.
+    --description -d   Print descriptions.
     --stars=STARS      Path of stars file [default: stars.json]
 '''
 import json;
 import pickle;
 import re;
 from misc import readtxt,take
+def addto(e):
+    pass;
+
 if __name__ == "__main__":
     from docopt import docopt;
     opts = docopt(__doc__,help=True);
@@ -59,10 +63,12 @@ if __name__ == "__main__":
     if opts['--ALL']:
         pass;
     elif opts['--all']:
-        keys = ['full_name','url','description'] + keys;
+        keys = ['full_name','html_url','description'] + keys;
     elif not opts['--fields']:
         keys = ['full_name'];
     if opts['--tags'] and 'tags' not in keys: keys.append('tags');
+    if opts['--description'] and 'description' not in keys:
+        keys.append('description');
     stars = [ take(star,keys) for star in stars ];
     #tags
     for star in stars:
