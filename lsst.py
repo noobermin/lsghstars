@@ -18,6 +18,7 @@ Options:
 '''
 import json;
 import pickle;
+import re;
 from misc import readtxt,take
 if __name__ == "__main__":
     from docopt import docopt;
